@@ -69,9 +69,64 @@ public:
    * 在跳表中删除一个键值对，如果删除成功，返回true，否则返回false
    */
   bool erase(const Key&);
+
+  /*
+   * 容器内的iterator类。支持自增++,判断相等==,!=,复制构造函数，解引用->
+   * ----------------------------------------------------------------
+   * Method: for (auto &i(skiplist.begin(); i != skiplist.end(); i++)
+   *             function(i->key , i->value);
+   * ----------------------------------------------------------------
+   */
+  struct Iterator {
+    friend Skiplist<Key, Value>;
+    Iterator() : pt{ nullptr } {
+    }
+    Iterator(const Skiplist<Key, Value>::Iterator& it) : pt(it.pt) {
+    }
+    Iterator& operator=(const Skiplist<Key, Value>::Iterator& it) {
+      pt = it.pt;
+      return *this;
+    }
+    Skiplist<Key, Value>::Iterator& operator++() {
+      if (pt != nullptr)
+        pt = pt->_pright;
+      return *this;
+    }
+    Skiplist<Key, Value>::Iterator operator++(int) {
+      auto rev{ *this };
+      if (pt != nullptr)
+        pt = pt->_pright;
+      return rev;
+    }
+
+    bool operator==(const Skiplist<Key, Value>::Iterator& ptc) const {
+      if (pt != nullptr && ptc != nullptr)
+        return pt->key == ptc.pt->key && pt->value == ptc.pt->value;
+      else return pt == nullptr && ptc.pt == nullptr;
+    }
+    bool operator!=(const Skiplist<Key, Value>::Iterator& it) const {
+      if (pt != nullptr && it.pt != nullptr) return pt->key != it.pt->key || pt->value != it.pt->value;
+      else return pt != it.pt;
+    }
+
+    SkiplistEntry<Key, Value>* operator->() {
+      return pt;
+    }
+  private:
+    SkiplistEntry<Key, Value>* pt;
+  };
+  Skiplist<Key, Value>::Iterator begin() const {
+    Skiplist<Key, Value>::Iterator rev;
+    if (!_quadlist.empty())
+      rev.pt = _quadlist[0];
+    return rev;
+  }
+  Iterator end() {
+    return Skiplist<Key, Value>::Iterator();
+  }
 private:
-  bool update(SkiplistEntry<Key, Value>* fpentry, unsigned floor);     //将某一Entry向上扩展一层
   std::vector< SkiplistEntry<Key, Value>* > _quadlist;                 //储存跳表的数据
+  bool update(SkiplistEntry<Key, Value>* fpentry, unsigned floor);     //将某一Entry向上扩展一层
   bool pushfront(Key, Value, unsigned floor);                          //如果这一层为空，那么在这一层增添一个元素
   bool insertback(SkiplistEntry<Key, Value>*&, Key, Value);            //在第一个参数指向的Entry后面插入一个新元素
 };
@@ -90,9 +145,9 @@ protected:
    *  2:使用key 和 value 初始化对象
    *  3:复制构造函数，强复制，一般情况会导致多次delete，导致出现bug
    */
-  SkiplistEntry() :_key(Key()), _value(Value())\
+  SkiplistEntry() :key(Key()), value(Value())\
     , _pup(nullptr), _pdown(nullptr), _pleft(nullptr), _pright(nullptr) {}
-  SkiplistEntry(Key pkey, Value pvalue) : _key(pkey), _value(pvalue)\
+  SkiplistEntry(Key pkey, Value pvalue) : key(pkey), value(pvalue)\
     , _pup(nullptr), _pdown(nullptr), _pleft(nullptr), _pright(nullptr) {}
   SkiplistEntry<Key, Value>(const SkiplistEntry<Key, Value>&) = default;
   /*
@@ -102,7 +157,7 @@ protected:
    * 析构函数
    */
   ~SkiplistEntry() {
-    //    std::cout << _key << ' ' << _value << std::endl;
+    //    std::cout << key << ' ' << value << std::endl;
     if (_pright != nullptr) {
       delete _pright;
       //不加下面这句话，更容易发现bug
@@ -117,9 +172,10 @@ private:
    * 在本entry右面创建一个新的skiplistEntry对象
    */
   void insertback(Key, Value);
+public:
+  Key key;                                                           //每个节点的key,value
+  Value value;
 private:
-  Key _key;                                                           //每个节点的key,value
-  Value _value;
   SkiplistEntry<Key, Value>* _pup;                                    //分别储存上下左右的
   SkiplistEntry<Key, Value>* _pdown;                                  //节点指针
   SkiplistEntry<Key, Value>* _pleft;

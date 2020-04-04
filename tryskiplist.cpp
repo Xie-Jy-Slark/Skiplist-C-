@@ -13,5 +13,7 @@ signed main() {
   cout << skiplist.get(4) << endl;
   cout << skiplist.get(6) << endl;
   skiplist.erase(5);
+  for (auto i(skiplist.begin()); i != skiplist.end(); i++)
+    cout << "<" << i->key << ", " << i->value << ">  ";
   return 0;
 }

@@ -14,10 +14,10 @@ bool Skiplist<Key, Value>::exist(const Key& fkey) {
     if (left != nullptr) left = left->_pdown;
     if (right != nullptr) right = right->_pdown;
     for (auto ithis(left == nullptr ? _quadlist[ifloor] : left); ithis != right; ithis = ithis->_pright) {
-      if (ithis->_key == fkey) {
+      if (ithis->key == fkey) {
         return true;
       }
-      else if (ithis->_key < fkey)
+      else if (ithis->key < fkey)
         left = ithis;
       else {
         right = ithis;
@@ -35,8 +35,8 @@ const Value& Skiplist<Key, Value>::get(const Key& fkey) {
     if (left != nullptr) left = left->_pdown;
     if (right != nullptr) right = right->_pdown;
     for (auto ithis(left == nullptr ? _quadlist[ifloor] : left); ithis != right; ithis = ithis->_pright) {
-      if (ithis->_key == fkey) return ithis->_value;
-      else if (ithis->_key < fkey)
+      if (ithis->key == fkey) return ithis->value;
+      else if (ithis->key < fkey)
         left = ithis;
       else {
         right = ithis;
@@ -54,10 +54,10 @@ bool Skiplist<Key, Value>::put(const Key& fkey, const Value& fvalue) {
     if (left != nullptr) left = left->_pdown;
     if (right != nullptr) right = right->_pdown;
     for (auto ithis(left == nullptr ? _quadlist[ifloor] : left); ithis != right; ithis = ithis->_pright) {
-      if (ithis->_key == fkey) {
+      if (ithis->key == fkey) {
         return false;
       }
-      else if (ithis->_key < fkey)
+      else if (ithis->key < fkey)
         left = ithis;
       else {
         right = ithis;
@@ -91,7 +91,7 @@ bool Skiplist<Key, Value>::erase(const Key& fkey) {
     if (left != nullptr) left = left->_pdown;
     if (right != nullptr) right = right->_pdown;
     for (auto ithis(left == nullptr ? _quadlist[ifloor] : left); ithis != right; ithis = ithis->_pright) {
-      if (ithis->_key == fkey) {
+      if (ithis->key == fkey) {
         for (; ifloor >= 0; ifloor--) {
           ithis->_pup = nullptr;
           if (ithis->_pleft != nullptr)
@@ -109,7 +109,7 @@ bool Skiplist<Key, Value>::erase(const Key& fkey) {
         }
         return true;
       }
-      else if (ithis->_key < fkey)
+      else if (ithis->key < fkey)
         left = ithis;
       else {
         right = ithis;
@@ -140,8 +140,8 @@ bool Skiplist<Key, Value>::insertback(SkiplistEntry<Key, Value>*& fpentry, Key f
 }
 template<typename Key, typename Value>
 bool Skiplist<Key, Value>::update(SkiplistEntry<Key, Value>* fpentry, unsigned floor) {
-  auto ckey(fpentry->_key);
-  auto cvalue(fpentry->_value);
+  auto ckey(fpentry->key);
+  auto cvalue(fpentry->value);
   auto cpentry(fpentry);
   for (; cpentry->_pleft != nullptr && cpentry->_pup == nullptr; cpentry = cpentry->_pleft) continue;
   if (cpentry->_pup == nullptr) {
